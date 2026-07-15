@@ -1,0 +1,850 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Verdict — CX Prod Jira</title>
+<style>
+:root{
+  --ink:#172B4D;--sub:#44546F;--sub2:#626F86;--faint:#8590A2;
+  --nav:#0C57E4;--nav-d:#0B3EAE;
+  --page:#fff;--surf:#F7F8F9;--hover:#F1F2F4;--sel:#E9F2FF;--border:#DFE1E6;--border2:#EBECF0;
+  --link:#0C66E4;--indigo:#5A46C6;--indigo-d:#2C2364;--mint:#22A06B;
+  --clear:#22A06B;--clear-t:#DCFFF1;--clear-i:#216E4E;
+  --review:#B06B00;--review-t:#FBEFD6;--review-i:#7A4E00;
+  --risk:#C6413B;--risk-t:#FBEAE9;--risk-i:#8E2A25;
+  --unv:#3B7DD8;--unv-t:#E7F0FB;--unv-i:#243F73;
+  --neutral:#626F86;--neutral-t:#F1F2F4;--neutral-i:#44526B;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif;
+  --mono:"SFMono-Regular",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+  --sh:0 1px 1px rgba(9,30,66,.13);--sh2:0 4px 12px rgba(9,30,66,.16),0 0 1px rgba(9,30,66,.3);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:var(--sans);color:var(--ink);background:var(--page);font-size:14px;line-height:1.43;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+code{font-family:var(--mono);font-size:.86em;background:#EEF0F2;border:1px solid #E3E6EA;border-radius:4px;padding:.5px 5px;color:#2C3E50;white-space:nowrap}
+a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline}
+.hidden{display:none!important}
+.app{display:flex;flex-direction:column;height:100vh}
+
+/* top nav */
+.nav{height:48px;flex:0 0 48px;display:flex;align-items:center;gap:6px;padding:0 12px 0 8px;background:var(--nav);color:#fff;position:relative;z-index:40}
+.nav svg{stroke:currentColor;fill:none;stroke-width:1.9}
+.nav .ic{width:32px;height:32px;border-radius:6px;display:grid;place-items:center;color:#fff;opacity:.94}
+.nav .ic:hover{background:rgba(255,255,255,.16)}
+.brand{display:flex;align-items:center;gap:10px;padding:0 6px 0 2px}
+.brand .nice{font-weight:800;font-size:16px;letter-spacing:.02em}
+.brand .prod{font-weight:400;font-size:14px;opacity:.92}
+.nav .sp{flex:1}
+.search{display:flex;align-items:center;gap:9px;width:min(620px,42vw);height:32px;background:#fff;border-radius:8px;padding:0 12px;color:var(--sub2);font-size:13.5px;cursor:text}
+.search svg{width:16px;height:16px;stroke:var(--sub2)}
+.create{display:flex;align-items:center;gap:7px;background:#fff;color:var(--nav-d);font-weight:600;font-size:14px;padding:6px 13px;border-radius:7px}
+.create svg{width:15px;height:15px;stroke:var(--nav-d);stroke-width:2.4}
+.rovo{display:flex;align-items:center;gap:7px;background:#fff;color:#1B2638;font-weight:600;font-size:13.5px;padding:6px 12px;border-radius:7px}
+.rovo svg{width:16px;height:16px}
+.navbell{position:relative}
+.badge9{position:absolute;top:0;right:-2px;background:#E5493A;color:#fff;font-size:10px;font-weight:700;border-radius:9px;padding:0 5px;line-height:15px}
+.reset{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:#fff;border:1px solid rgba(255,255,255,.55);border-radius:7px;padding:5px 10px}
+.reset:hover{background:rgba(255,255,255,.16)}
+.reset svg{width:13px;height:13px;stroke:#fff;stroke-width:2}
+.me{width:30px;height:30px;border-radius:50%;background:#D64545;color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700;margin-left:2px}
+
+/* layout */
+.body{flex:1;display:flex;min-height:0}
+.side{width:248px;flex:0 0 248px;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;min-height:0;overflow:auto}
+.snav{padding:8px 8px 16px}
+.si{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:7px 10px;border-radius:8px;color:var(--sub);font-size:14px;font-weight:500;position:relative}
+.si:hover{background:var(--hover)}
+.si.on{background:var(--sel);color:var(--nav-d);font-weight:600}
+.si.on::before{content:"";position:absolute;left:-8px;top:6px;bottom:6px;width:3px;border-radius:3px;background:var(--nav)}
+.si svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;flex:0 0 17px}
+.si .vm{width:17px;height:17px;flex:0 0 17px}
+.si .ext{margin-left:auto;width:13px;height:13px;opacity:.55}
+.si .ch{margin-left:auto;width:14px;height:14px;opacity:.6}
+.sgrp{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--faint);padding:12px 10px 4px}
+.sproj{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;font-size:14px;font-weight:600;color:var(--ink)}
+.sproj:hover{background:var(--hover)}
+.sproj .pi{width:20px;height:20px;border-radius:5px;background:#111;display:grid;place-items:center;color:#fff;font-size:8px;font-weight:800;flex:0 0 20px}
+.sproj .pa{margin-left:auto;display:flex;gap:2px;color:var(--faint)}
+.sdiv{height:1px;background:var(--border2);margin:8px 4px}
+
+.main{flex:1;overflow:auto;min-width:0;background:#fff}
+.wrap{max-width:1180px;padding:14px 28px 70px}
+
+/* page head */
+.phead{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.crumb{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--sub2);flex-wrap:wrap;min-width:0}
+.crumb button{color:var(--sub2);font-size:12.5px;display:inline-flex;align-items:center;gap:5px}
+.crumb button:hover{color:var(--link);text-decoration:underline}
+.crumb .sep{color:var(--faint)}
+.pacts{margin-left:auto;display:flex;align-items:center;gap:4px;color:var(--sub2)}
+.pacts button{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:6px;font-size:12.5px;color:var(--sub2)}
+.pacts button:hover{background:var(--hover)}
+.pacts svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8}
+
+.cols{display:flex;gap:26px;align-items:flex-start}
+.mcol{flex:1;min-width:0}
+.scol{width:340px;flex:0 0 340px}
+
+.ititle{font-size:24px;font-weight:600;letter-spacing:-.01em;margin:2px 0 12px;line-height:1.25}
+.itbar{display:flex;gap:8px;margin-bottom:16px}
+.sqbtn{width:32px;height:32px;border:1px solid var(--border);border-radius:6px;display:grid;place-items:center;color:var(--sub)}
+.sqbtn:hover{background:var(--hover)}
+.sqbtn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9}
+
+/* status pill + side controls */
+.stwrap{position:relative}
+.stbtn{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;padding:7px 10px 7px 13px;border-radius:6px}
+.stbtn .ch{width:15px;height:15px;stroke-width:2.4}
+.stbtn.todo{background:#DCDFE4;color:#42526E}
+.stbtn.prog{background:var(--sel);color:var(--nav-d)}
+.stbtn.done{background:var(--clear-t);color:var(--clear-i)}
+.stbtn:hover{filter:brightness(.97)}
+.bolt{width:34px;height:34px;border:1px solid var(--border);border-radius:6px;display:grid;place-items:center;color:var(--sub)}
+.bolt:hover{background:var(--hover)}
+.bolt svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9}
+.menu{position:absolute;top:calc(100% + 5px);left:0;background:#fff;border-radius:8px;box-shadow:var(--sh2);padding:6px;min-width:230px;z-index:30}
+.menu .ml{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);padding:6px 10px 4px}
+.menu button{display:flex;align-items:center;gap:9px;width:100%;text-align:left;padding:8px 10px;border-radius:6px;font-size:13.5px}
+.menu button:hover{background:var(--hover)}
+.menu .sd{width:9px;height:9px;border-radius:2px}
+.menu .sd.todo{background:#8993A4}.menu .sd.prog{background:var(--nav)}.menu .sd.done{background:var(--clear)}
+.menu .cur{margin-left:auto;color:var(--faint);font-size:11px;font-weight:600}
+.improve{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--border);border-radius:8px;padding:9px;font-size:14px;font-weight:600;color:var(--ink);margin-bottom:18px}
+.improve:hover{background:var(--hover)}
+.improve svg{width:16px;height:16px;fill:var(--indigo);stroke:none}
+
+/* details panel */
+.dcard{border:1px solid var(--border);border-radius:10px;padding:6px 16px 14px;margin-bottom:16px}
+.dhead{display:flex;align-items:center;gap:8px;padding:10px 0 4px;font-size:14px;font-weight:600;color:var(--ink)}
+.dhead svg{width:16px;height:16px;stroke:var(--sub2);fill:none;stroke-width:2}
+.dfield{padding:9px 0}
+.dlab{font-size:12px;font-weight:600;color:var(--sub2);margin-bottom:6px}
+.dval{display:flex;align-items:center;gap:8px;font-size:13.5px;flex-wrap:wrap}
+.dlink{color:var(--link);font-size:13.5px;font-weight:500;margin-top:5px;display:inline-block}
+.chipf{background:var(--hover);border:1px solid var(--border2);color:var(--sub);border-radius:5px;font-size:12.5px;padding:3px 9px}
+.muted{color:var(--faint)}
+.prio{display:inline-flex;align-items:center;gap:6px;font-weight:600}
+.prio svg{width:15px;height:15px}
+.parent{display:inline-flex;align-items:center;gap:7px;color:var(--link);font-size:13px;font-weight:500}
+.parent:hover{text-decoration:underline}
+
+/* key details */
+.kd{margin-bottom:8px}
+.kdhead{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;margin-bottom:12px;cursor:pointer}
+.kdhead svg{width:15px;height:15px;stroke:var(--sub2);fill:none;stroke-width:2.2}
+.tabs{display:flex;gap:22px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.tab{padding:0 0 9px;font-size:14px;font-weight:500;color:var(--sub);position:relative;top:1px}
+.tab.on{color:var(--nav-d);font-weight:600;border-bottom:2px solid var(--nav-d)}
+.fh{font-size:15px;font-weight:600;margin:20px 0 8px}
+.fh.first{margin-top:0}
+.bodytext{font-size:14px;color:#283852;line-height:1.55}
+.bodytext p{margin:0 0 8px}
+.bul{margin:0;padding-left:20px}
+.bul li{margin:6px 0;font-size:14px;color:#283852;line-height:1.5}
+.acol{margin:0;padding-left:22px}
+.acol li{margin:7px 0;font-size:14px;color:#283852;line-height:1.5}
+.fieldrow{display:flex;gap:16px;align-items:center;margin:14px 0}
+.fieldrow .fl{width:150px;flex:0 0 150px;color:var(--sub2);font-size:13px}
+.fieldrow .fv .chipf{font-size:13px}
+
+/* attachments */
+.att{display:flex;gap:14px;flex-wrap:wrap;margin-top:4px}
+.attc{width:190px;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.attc .thumb{height:110px;background:#F4F7FB;border-bottom:1px solid var(--border2);display:grid;place-items:center;overflow:hidden}
+.attc .meta{padding:8px 10px}
+.attc .fn{font-size:12.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.attc .dt{font-size:11.5px;color:var(--faint);margin-top:2px}
+.cnt{background:#DFE1E6;color:var(--sub);border-radius:999px;font-size:11px;padding:1px 8px;font-weight:700;margin-left:8px}
+
+/* child work items */
+.ctbl{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:4px}
+.ctopbar{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border2);color:var(--sub2);font-size:12.5px}
+.ctopbar .done0{margin-left:auto;font-size:12px}
+.cth,.ctr{display:grid;grid-template-columns:1fr 74px 46px 132px 128px;gap:8px;align-items:center;padding:10px 14px}
+.cth{background:var(--surf);border-bottom:1px solid var(--border2);font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--sub2)}
+.ctr{border-top:1px solid var(--border2);cursor:pointer}
+.ctr:hover{background:var(--hover)}
+.ctr .w{display:flex;align-items:center;gap:9px;min-width:0}
+.ctr .wk{font-family:var(--mono);font-size:12px;color:var(--link);flex:0 0 auto}
+.ctr .ws{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ptag{font-size:10px;font-weight:700;letter-spacing:.02em;padding:3px 8px;border-radius:5px;white-space:nowrap;display:inline-block}
+.spts{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--sub);background:var(--hover);border-radius:4px;padding:2px 6px;justify-self:start}
+.cst .astat{display:inline-flex;align-items:center;gap:6px}
+
+/* activity */
+.act{margin-top:26px}
+.atabs{display:flex;gap:8px;align-items:center;margin:6px 0 14px}
+.atab{font-size:13.5px;font-weight:600;color:var(--sub);padding:5px 12px;border-radius:6px}
+.atab.on{background:var(--sel);color:var(--nav-d)}
+.atab.more{display:inline-flex;align-items:center;gap:4px}
+.atab.more svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+.composer{display:flex;gap:11px;margin-bottom:8px}
+.composer .box{flex:1;border:1px solid var(--border);border-radius:8px;padding:9px 12px}
+.composer .ph{color:var(--faint);font-size:13.5px}
+.qbtns{display:flex;gap:8px;margin-top:9px}
+.qb{border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:12.5px;font-weight:600;color:var(--sub)}
+.qb:hover{background:var(--hover)}
+.protip{font-size:12px;color:var(--faint);margin:4px 0 16px 44px}
+.protip kbd{font-family:var(--mono);background:var(--hover);border:1px solid var(--border);border-radius:4px;padding:0 5px;font-size:11px}
+.cmt{display:flex;gap:11px;padding:12px 0}
+.cmt .nm{font-weight:600;font-size:13.5px}
+.cmt .tm{color:var(--faint);font-size:12px;margin-left:8px}
+.cmt .tx{font-size:13.5px;color:#283852;margin-top:4px;line-height:1.5}
+.cmt .tx ol{margin:6px 0;padding-left:20px}
+.cmt .tx li{margin:3px 0}
+.ment{color:var(--link);font-weight:600}
+.cmt .re{display:flex;gap:16px;margin-top:8px;color:var(--sub2)}
+.cmt .re button{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--sub2)}
+.cmt .re svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8}
+.addedac{display:inline-flex;align-items:center;gap:6px;background:#EFEDFB;border:1px solid #DAD5F3;color:var(--indigo);border-radius:6px;font-size:11.5px;font-weight:600;padding:3px 8px;margin-top:8px}
+
+/* verdict panel */
+.vp{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:22px;background:#fff;box-shadow:var(--sh)}
+.vp-top{height:4px}
+.vp-h{display:flex;align-items:center;gap:9px;padding:11px 16px;border-bottom:1px solid var(--border2);background:linear-gradient(#FCFBFF,#F7F5FD)}
+.vp-h .mk{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13px;color:var(--indigo-d)}
+.vp-h .mk svg{width:19px;height:19px}
+.vp-h .ap{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--indigo);background:#EEEBFA;border-radius:5px;padding:2px 7px}
+.vp-h .when{color:var(--faint);font-size:12px}
+.vp-h .sp{flex:1}
+.loz{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;border-radius:5px;padding:4px 9px}
+.loz .dot{width:8px;height:8px;border-radius:50%}
+.loz.clear{background:var(--clear-t);color:var(--clear-i)}.loz.clear .dot{background:var(--clear)}
+.loz.review{background:var(--review-t);color:var(--review-i)}.loz.review .dot{background:var(--review)}
+.loz.risk{background:var(--risk-t);color:var(--risk-i)}.loz.risk .dot{background:var(--risk)}
+.loz.unverified,.loz.unv{background:var(--unv-t);color:var(--unv-i)}.loz.unverified .dot,.loz.unv .dot{background:var(--unv)}
+.loz.neutral{background:var(--neutral-t);color:var(--neutral-i)}.loz.neutral .dot{background:var(--neutral)}
+.loz.idle{background:#EDEEF0;color:var(--sub)}.loz.idle .dot{background:var(--faint)}
+.ban{display:flex;gap:15px;align-items:flex-start;padding:18px 16px}
+.bg{width:42px;height:42px;flex:0 0 42px;border-radius:50%;display:grid;place-items:center;margin-top:2px}
+.bg svg{width:23px;height:23px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.bg.clear{background:var(--clear)}.bg.review{background:var(--review)}.bg.risk{background:var(--risk)}.bg.unverified,.bg.unv{background:var(--unv)}.bg.neutral{background:var(--neutral)}
+.ban .lb{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+.lb.clear{color:var(--clear-i)}.lb.review{color:var(--review-i)}.lb.risk{color:var(--risk-i)}.lb.unverified,.lb.unv{color:var(--unv-i)}.lb.neutral{color:var(--neutral-i)}
+.ban h2{font-size:18px;line-height:1.32;font-weight:600;margin:0;letter-spacing:-.01em}
+.cov{display:flex;align-items:center;gap:13px;padding:13px 16px;border-top:1px solid var(--border2)}
+.cov .cl{font-size:12px;font-weight:600;color:var(--sub);width:72px}
+.cov .bar{flex:1;height:8px;border-radius:6px;background:var(--border2);overflow:hidden}
+.cov .fill{height:100%;background:var(--mint);border-radius:6px}
+.cov .num{font-family:var(--mono);font-size:13px;font-weight:700;white-space:nowrap}
+.cov .hint{font-size:11.5px;color:var(--faint);white-space:nowrap}
+.why{margin:0 16px 2px;background:var(--risk-t);border:1px solid #F3CFCC;border-radius:8px;padding:11px 13px;font-size:13px;color:var(--risk-i);display:flex;gap:9px}
+.why svg{width:16px;height:16px;flex:0 0 16px;margin-top:2px;stroke:var(--risk);fill:none;stroke-width:2}
+.sh{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);padding:13px 16px 4px}
+.acl{border-top:1px solid var(--border2)}
+.ar{display:flex;align-items:flex-start;gap:11px;padding:9px 16px;border-top:1px solid var(--border2)}
+.ar:first-child{border-top:0}
+.mk2{width:18px;height:18px;flex:0 0 18px;border-radius:50%;display:grid;place-items:center;margin-top:1px}
+.mk2 svg{width:11px;height:11px;stroke:#fff;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.mk2.yes{background:var(--clear)}.mk2.part{background:var(--review)}.mk2.no{background:var(--faint)}
+.ar .tx{flex:1;font-size:13.5px}
+.chip{font-family:var(--mono);font-size:11.5px;padding:2px 8px;border-radius:5px;background:var(--surf);color:var(--sub);border:1px solid var(--border2);white-space:nowrap;align-self:flex-start;margin-top:1px}
+.chip.ev{background:#EAF7F1;color:#1c7a5a;border-color:#CDEBE0}
+.chip.warn{background:#FEF6E7;color:#8a5a00;border-color:#F5E2B8}
+.tagc{display:inline-block;margin-left:8px;font-size:10.5px;font-weight:700;color:var(--indigo);background:#EFEDFB;border:1px solid #D9D5F5;border-radius:5px;padding:1px 7px;vertical-align:1px}
+.fl{padding:6px 16px 4px}
+.fr{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--border2);font-size:13.5px}
+.fr:first-of-type{border-top:0}
+.fr .fi{width:18px;height:18px;flex:0 0 18px;margin-top:1px}
+.fr .fi svg{width:18px;height:18px;fill:none;stroke-width:2}
+.src{font-family:var(--mono);font-size:11.5px;color:var(--sub2)}
+.audit{border-top:1px solid var(--border2)}
+.audit summary{list-style:none;cursor:pointer;padding:12px 16px;font-size:12.5px;font-weight:600;color:var(--sub);display:flex;align-items:center;gap:8px}
+.audit summary::-webkit-details-marker{display:none}
+.audit summary .cv{transition:transform .15s;color:var(--faint)}
+.audit[open] summary .cv{transform:rotate(90deg)}
+.abody{padding:2px 16px 14px}
+.aln{font-size:12.5px;color:var(--sub);padding:5px 0;border-top:1px dashed var(--border2);display:flex;gap:9px}
+.aln:first-child{border-top:0}
+.aln .k{font-family:var(--mono);color:var(--faint);flex:0 0 120px}
+.vf{display:flex;gap:10px;padding:12px 16px;border-top:1px solid var(--border2);background:#FBFBFC}
+.gbtn{border:1px solid var(--border);background:#fff;border-radius:6px;padding:7px 13px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.gbtn:hover{background:var(--hover)}.gbtn.pri{background:var(--nav);border-color:var(--nav);color:#fff}.gbtn.pri:hover{background:var(--nav-d)}
+.gbtn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+.idle{padding:18px 16px;color:var(--sub);font-size:13.5px}
+.idle b{color:var(--ink)}.idle ul{margin:10px 0 0;padding-left:18px;color:var(--sub2);font-size:13px}.idle li{margin:3px 0}
+.go{background:var(--nav);color:#fff;border-radius:8px;padding:10px 18px;font-size:14px;font-weight:700;display:inline-flex;align-items:center;gap:9px}
+.go:hover{background:var(--nav-d)}.go svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2}
+.run{padding:8px 16px 16px}
+.rl{display:flex;align-items:center;gap:11px;padding:7px 0;font-size:13.5px;color:var(--sub);opacity:0;transform:translateY(4px);transition:opacity .25s,transform .25s}
+.rl.in{opacity:1;transform:none}
+.rl .spn{width:16px;height:16px;flex:0 0 16px;border-radius:50%;border:2px solid #D6D3EF;border-top-color:var(--indigo);animation:vsp .7s linear infinite}
+.rl.dn .spn{border:0;background:var(--clear);animation:none;position:relative}
+.rl.dn .spn::after{content:"";position:absolute;inset:0;background:no-repeat center/11px url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M5 13l4 4L19 7'/></svg>")}
+.rl.dn{color:var(--ink)}
+@keyframes vsp{to{transform:rotate(360deg)}}
+
+/* epic extras */
+.goal{color:var(--sub);font-size:14px;margin:0 0 18px;max-width:680px}
+.gap{background:#fff;border:1px solid #F0C9C6;border-left:4px solid var(--risk);border-radius:10px;padding:14px 16px;margin-bottom:20px;display:flex;gap:12px}
+.gap svg{width:22px;height:22px;stroke:var(--risk);fill:none;stroke-width:2;flex:0 0 22px}
+.gap h3{margin:0 0 4px;font-size:14px;font-weight:700;color:var(--risk-i)}
+.gap p{margin:0;font-size:13.5px;color:#5a3a37}
+.sec{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin:22px 0 10px}
+.eac{border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.er{display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid var(--border2)}
+.er:first-child{border-top:0}
+.er .en{font-family:var(--mono);font-size:12px;color:var(--faint);flex:0 0 34px}
+.er .et{flex:1;font-size:13.5px}
+.er .kids{display:flex;gap:5px;flex-wrap:wrap}
+.kc{font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:5px;background:var(--surf);border:1px solid var(--border2);color:var(--sub2);cursor:pointer}
+.kc:hover{border-color:var(--indigo);color:var(--indigo)}
+.er.g{background:var(--risk-t)}
+.gtag{font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--risk-i);background:#fff;border:1px solid #F0C9C6;border-radius:5px;padding:3px 8px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.stat{border:1px solid var(--border);border-radius:10px;padding:13px 15px}
+.stat .sl{font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--faint)}
+.stat .sv{font-size:22px;font-weight:700;letter-spacing:-.02em;margin:6px 0 2px}
+.stat .sd{font-size:12px;color:var(--sub2)}
+.den{background:var(--sel);border:1px solid #CFE0FA;border-radius:10px;padding:12px 15px;margin:14px 0 4px;font-size:13.5px;color:var(--nav-d);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.den .pips{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+.pip{font-size:11.5px;padding:3px 9px;border-radius:999px;font-weight:700}
+.pip.clear{background:var(--clear-t);color:var(--clear-i)}.pip.review{background:var(--review-t);color:var(--review-i)}.pip.risk{background:var(--risk-t);color:var(--risk-i)}.pip.unverified{background:var(--unv-t);color:var(--unv-i)}.pip.pending{background:#fff;color:var(--sub);border:1px solid var(--border)}
+
+/* board */
+.board{display:flex;gap:12px;overflow-x:auto;align-items:flex-start;padding-bottom:20px}
+.bcol{flex:0 0 250px;background:var(--surf);border-radius:10px;padding:8px}
+.bch{display:flex;align-items:center;gap:8px;padding:7px 8px 11px}
+.bch .cn{font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--sub2)}
+.bch .cc{background:#DFE1E6;color:var(--sub);border-radius:999px;font-size:11px;padding:1px 8px;font-weight:700}
+.bch .vm{width:14px;height:14px;margin-left:auto}
+.bch .vt{font-size:10px;font-weight:700;color:var(--indigo);letter-spacing:.02em}
+.bcard{background:#fff;border:1px solid var(--border2);border-radius:8px;box-shadow:var(--sh);padding:11px 12px;margin-bottom:8px;cursor:pointer}
+.bcard:hover{border-color:#C1C7D0}
+.bcard.clear{border-left:3px solid var(--clear)}.bcard.review{border-left:3px solid var(--review)}.bcard.risk{border-left:3px solid var(--risk)}.bcard.unverified{border-left:3px solid var(--unv)}
+.bcard .bs{font-size:13.5px;margin-bottom:11px;line-height:1.34}
+.bcard .bf{display:flex;align-items:center;gap:8px}
+.bcard .bk{font-family:var(--mono);font-size:12px;color:var(--sub2);display:flex;align-items:center;gap:6px}
+.bcard .vm2{font-size:10px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;padding:2px 6px;border-radius:4px}
+.bcard .bp{margin-left:auto}
+.emp{color:var(--faint);font-size:12.5px;text-align:center;padding:14px 8px}
+
+.ito{border-radius:3px;display:grid;place-items:center;flex:0 0 auto}
+.cav{border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700}
+@media (max-width:1040px){.cols{flex-direction:column}.scol{width:100%;flex-basis:auto}.stats{grid-template-columns:1fr}}
+@media (max-width:860px){.side{display:none}.cth,.ctr{grid-template-columns:1fr 60px 40px 96px}}
+@media (prefers-reduced-motion:reduce){.rl{transition:none}.rl .spn{animation:none}}
+.gbtn.ok{background:var(--clear-t);border-color:#BEEAD5;color:var(--clear-i);cursor:default}
+.gbtn.ok svg{stroke:var(--clear-i)}
+.gbtn.warn2{background:#FEF6E7;border-color:#F5E2B8;color:#8a5a00}
+.gbtn.warn2 svg{stroke:#8a5a00}
+.vfnote{display:flex;gap:9px;align-items:flex-start;padding:10px 16px;border-top:1px solid var(--border2);font-size:13px;color:var(--sub)}
+.vfnote svg{width:16px;height:16px;flex:0 0 16px;margin-top:1px;stroke:var(--sub);fill:none;stroke-width:2}
+.vfnote.ok{color:var(--clear-i)}.vfnote.ok svg{stroke:var(--clear-i)}
+.dfrm{padding:14px 16px;border-top:1px solid var(--border2);background:#FBFBFC}
+.dfl{display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:8px}
+.dfin{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-family:inherit;font-size:13.5px;color:var(--ink);resize:vertical;min-height:64px}
+.dfin:focus{outline:2px solid var(--indigo);outline-offset:1px;border-color:var(--indigo)}
+.dfacts{display:flex;gap:10px;margin-top:10px}
+.dfhint{font-size:12px;color:var(--faint);margin-top:8px}
+.chal{margin:0 16px 4px;border:1px solid #E3DEF7;background:#FAF9FE;border-radius:10px;padding:12px 14px}
+.chal .cw{font-size:12.5px;font-weight:600;color:var(--indigo-d)}
+.chal blockquote{margin:8px 0;padding:8px 12px;border-left:3px solid var(--indigo);background:#fff;border-radius:6px;font-size:13.5px;color:#3a3550;font-style:italic}
+.chal .cr{font-size:13px;color:#283852;line-height:1.55}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(16px);background:#172B4D;color:#fff;font-size:13.5px;font-weight:500;padding:11px 18px;border-radius:10px;box-shadow:0 8px 24px rgba(9,30,66,.28);opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;z-index:80;max-width:min(560px,90vw)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+:focus-visible{outline:2px solid var(--indigo);outline-offset:2px;border-radius:4px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="toast" id="toast"></div>
+  <header class="nav">
+    <button class="ic" title="Collapse"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg></button>
+    <button class="ic" title="Apps"><svg viewBox="0 0 24 24" stroke-width="0" fill="currentColor"><circle cx="5" cy="5" r="1.7"/><circle cx="12" cy="5" r="1.7"/><circle cx="19" cy="5" r="1.7"/><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/><circle cx="5" cy="19" r="1.7"/><circle cx="12" cy="19" r="1.7"/><circle cx="19" cy="19" r="1.7"/></svg></button>
+    <div class="brand"><span class="nice">NiCE</span><span class="prod">CX Prod Jira</span></div>
+    <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>Search</div>
+    <span class="sp"></span>
+    <button class="create"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Create</button>
+    <button class="rovo"><svg viewBox="0 0 24 24"><defs><linearGradient id="rv" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8B5CF6"/><stop offset=".55" stop-color="#4F7BFF"/><stop offset="1" stop-color="#12C2E9"/></linearGradient></defs><path d="M12 2 L21 7 V17 L12 22 L3 17 V7 Z" fill="url(#rv)"/><path d="M12 8.5l1.1 2.4 2.4 1.1-2.4 1.1L12 15.5l-1.1-2.4L8.5 12l2.4-1.1z" fill="#fff"/></svg>Ask Rovo</button>
+    <button class="ic navbell" title="Notifications"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="badge9">9+</span></button>
+    <button class="ic" title="Help"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.2 9a3 3 0 1 1 4.3 2.7c-.9.5-1.5 1-1.5 2.1"/><path d="M12 17.5v.01"/></svg></button>
+    <button class="ic" title="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.2A1.6 1.6 0 0 0 7 19.3a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-1.1-2.7H1a2 2 0 1 1 0-4h.2A1.6 1.6 0 0 0 2.7 7a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H7a1.6 1.6 0 0 0 1-1.5V1a2 2 0 1 1 4 0v.2A1.6 1.6 0 0 0 17 2.7a1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V7a1.6 1.6 0 0 0 1.5 1H23a2 2 0 1 1 0 4h-.2a1.6 1.6 0 0 0-1.4 1z"/></svg></button>
+    <button class="reset" id="btn-reset"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Reset demo</button>
+    <div class="me">SK</div>
+  </header>
+  <div class="body">
+    <nav class="side">
+      <div class="snav">
+        <button class="si"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>For you</button>
+        <button class="si"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2 2"/></svg>Recent<svg class="ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button class="si"><svg viewBox="0 0 24 24"><path d="M12 4l2.4 5 5.6.5-4.2 3.7 1.3 5.3L12 21l-5.1 2.5 1.3-5.3L4 14.5 9.6 14z"/></svg>Starred<svg class="ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>Apps</button>
+        <button class="si"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h10M4 17h13"/></svg>Roadmaps</button>
+        <button class="si"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M4 10h16"/></svg>Plans</button>
+        <button class="si"><svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4z"/><path d="M3 12l9 4 9-4"/></svg>Spaces<svg class="ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg></button>
+        <div class="sgrp">Recent</div>
+        <div class="sproj"><span class="pi">CX</span>CX_Integrations<span class="pa">＋ ⋯</span></div>
+        <div class="sgrp">Recent</div>
+        <button class="si on" id="nav-board"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="5" height="16" rx="1"/><rect x="11" y="4" width="5" height="10" rx="1"/><rect x="18" y="4" width="2.5" height="13" rx="1"/></svg>HI Sinhagad Scrum Board</button>
+        <button class="si"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="5" height="16" rx="1"/><rect x="11" y="4" width="5" height="10" rx="1"/></svg>HI Integrations Scrum Boa…</button>
+        <button class="si"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="5" height="16" rx="1"/><rect x="11" y="4" width="5" height="10" rx="1"/></svg>HI Rajgad Scrum Board</button>
+        <button class="si"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Hosted Integrations Autom…</button>
+        <button class="si"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Hosted Integrations Capab…</button>
+        <button class="si"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h10"/></svg>View all boards</button>
+        <button class="si" id="nav-epic"><svg class="vm" viewBox="0 0 100 100"><rect x="6" y="6" width="88" height="88" rx="22" fill="#5A46C6"/><path d="M30 52 L44 66 L72 34" fill="none" stroke="#5DCAA5" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></svg>Verdict</button>
+        <div class="sdiv"></div>
+        <div class="sproj"><span class="pi">CX</span>CX_Site_Reliability_Engi…</div>
+        <div class="sproj"><span class="pi">CX</span>CX_Platform_DevOps</div>
+        <div class="sproj"><span class="pi" style="background:#0C8CE9">☁</span>CXone WFM</div>
+        <div class="sproj"><span class="pi">CX</span>AWS Configuration Reque…</div>
+        <button class="si">More spaces<svg class="ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+        <div class="sdiv"></div>
+        <button class="si"><svg viewBox="0 0 24 24"><path d="M4 5h16l-6 8v6l-4-2v-4z"/></svg>Filters</button>
+        <button class="si"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/></svg>Dashboards</button>
+        <button class="si"><svg viewBox="0 0 24 24" fill="#2684FF" stroke="none"><path d="M4 5h16v14H4z" opacity=".25"/><path d="M7 9h10v2H7zM7 13h7v2H7z"/></svg>Confluence<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 4h6v6M20 4l-9 9M10 6H5v13h13v-5"/></svg></button>
+        <button class="si"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M15.5 14.5c2.5.3 4.5 2.4 4.5 5"/></svg>Teams<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 4h6v6M20 4l-9 9M10 6H5v13h13v-5"/></svg></button>
+      </div>
+    </nav>
+    <main class="main"><div class="wrap" id="view"></div></main>
+  </div>
+</div>
+<script>
+/* ---------- icons + helpers ---------- */
+var glyph={check:'<path d="M5 13l4 4L19 7"/>',bang:'<path d="M12 7v7"/><path d="M12 17.5v.01"/>',cross:'<path d="M6 6l12 12M18 6L6 18"/>',quest:'<path d="M9.2 9a3 3 0 1 1 4.3 2.7c-.9.5-1.5 1-1.5 2.1"/><path d="M12 17.5v.01"/>',minus:'<path d="M6 12h12"/>'};
+var warnTri='<path d="M12 9v4"/><path d="M12 17v.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>';
+var arrowR='<path d="M5 12h14"/><path d="M13 6l6 6-6 6"/>';
+var rerun='<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>';
+var LIGHT='<path d="M10 2 L4.5 10.6 H8 l-1 5.4 6.5-9.4 H10 l1-4.6 z" fill="#fff"/>';
+var BOOK='<path d="M5 3.2h8a1 1 0 0 1 1 1V15.4a.4.4 0 0 1-.63.33L9 12.9l-4.37 2.83A.4.4 0 0 1 4 15.4V4.2a1 1 0 0 1 1-1z" fill="#fff"/>';
+var CHK='<path d="M4 9.5l3 3L14 5.5" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>';
+var typeIcon={epic:{bg:'#6E56CF',g:LIGHT},story:{bg:'#4FA82E',g:BOOK},task:{bg:'#4688EC',g:CHK},spike:{bg:'#1C9DBB',g:LIGHT},capability:{bg:'#DE6B2F',g:LIGHT}};
+var vmark='<svg class="vm" viewBox="0 0 100 100"><rect x="6" y="6" width="88" height="88" rx="22" fill="#5A46C6"/><path d="M30 52 L44 66 L72 34" fill="none" stroke="#5DCAA5" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+var avc={PJ:'#D9820B',MF:'#1F2D3D',MB:'#1868DB',SK:'#D64545',SM:'#0C8074',AS:'#8A3FD1'};
+var nameMap={PJ:'Prashasti Jain',MF:'Matt Field',MB:'Megha Biradar',SK:'You',SM:'Sanyog Mishra',AS:'Asma Syeda'};
+var labels={clear:'Clear',review:'Review',risk:'Risk',unverified:'Unverified',neutral:'Done',idle:'Not run'};
+function ito(t,s){s=s||16;var x=typeIcon[t]||typeIcon.task;return '<span class="ito" style="background:'+x.bg+';width:'+s+'px;height:'+s+'px"><svg width="'+(s-4)+'" height="'+(s-4)+'" viewBox="0 0 18 18">'+x.g+'</svg></span>';}
+function av(i,s){s=s||22;return '<span class="cav" style="background:'+(avc[i]||'#5E6C84')+';width:'+s+'px;height:'+s+'px;font-size:'+Math.round(s*0.42)+'px">'+i+'</span>';}
+function loz(s,label){return '<span class="loz '+s+'"><span class="dot"></span>'+(label||labels[s])+'</span>';}
+function badgeSvg(s){var m={clear:'check',review:'bang',risk:'cross',unverified:'quest',neutral:'minus'}[s]||'minus';return '<svg viewBox="0 0 24 24">'+glyph[m]+'</svg>';}
+function prioHTML(p){var c=p==='P1'?'#C6413B':'#D9820B';var d=p==='P1'?'<path d="M12 19V6M6 12l6-6 6 6"/>':'<path d="M6 14l6-6 6 6M6 9l6-6 6 6"/>';return '<span class="prio"><svg viewBox="0 0 24 24" fill="none" stroke="'+c+'" stroke-width="2">'+d+'</svg>'+p+'</span>';}
+var STATUSES=[['Backlog','backlog'],['Ready for Dev','ready'],['In Progress','progress'],['In Review','inreview'],['Validate','validate'],['Done','done']];
+function statusCat(c){return c==='done'?'done':(c==='backlog'||c==='ready'?'todo':'prog');}
+function colOf(l){for(var i=0;i<STATUSES.length;i++){if(STATUSES[i][0]===l)return STATUSES[i][1];}return 'ready';}
+function statusButton(o){var opts=STATUSES.map(function(s){return '<button data-status="'+s[0]+'"><span class="sd '+statusCat(s[1])+'"></span>'+s[0]+(o.status===s[0]?'<span class="cur">Current</span>':'')+'</button>';}).join('');
+  return '<div class="stwrap"><button class="stbtn '+statusCat(o.column)+'" id="statusbtn">'+o.status+'<svg class="ch" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6"/></svg></button><div class="menu hidden" id="statusmenu"><div class="ml">Move to</div>'+opts+'</div></div>';}
+/* ---------- data ---------- */
+var CHILDREN=['INT-57550','INT-57551','INT-57552','INT-57553','INT-57554','INT-57555'];
+var PARENT={key:'INT-51740',type:'capability',summary:'Support UserSync for Single BU'};
+var EPIC={key:'INT-57495',type:'epic',summary:'WFM Config — UserSync mode & IEX stack for a BU',
+  status:'Ready for Dev',column:'ready',assignee:'PJ',reporter:'MF',team:'Sinhagad',aiAgent:'Yes',components:'wfm-config',priority:'P1',labels:[],
+  goal:'Expose a BU’s configured UserSync mode and IEX stack information through WFM Config — without changing existing CoOp routing or the legacy usersync_active behaviour.',
+  desc:'As a <b>CoOp User Sync service</b>, save and retrieve the configured user synchronization mode for a BU, and expose the BU’s IEX stack information, so downstream services can decide whether to run the existing sync, skip it, or delegate to the new UserSync service.',
+  notes:['Split across stories: <b>UserSync mode</b> on the <code>/status</code> endpoint, and <b>IEX stack information</b> for the BU.',
+    'The delegated value is stored separately from <code>usersync_active</code>; the legacy column and behaviour stay unchanged.',
+    'Caching of <code>wfm-config</code> is still open (see the discussion in Activity).'],
+  ac:['Save &amp; retrieve the UserSync mode (<b>Enabled / Disabled / Delegated</b>) via <code>POST</code>/<code>GET</code> <code>/api/v1/bu/{busno}/status</code>.',
+    'Saving the <b>Delegated</b> config does not alter existing <code>usersync_active</code> behaviour.',
+    'Provide IEX stack information for a BU, including when <b>multiple</b> stacks are configured.',
+    'Return <code>sync_mode</code> everywhere <code>usersync_active</code> is currently used.',
+    'Refresh the <code>wfm-config</code> cache after a UserSync config change.',
+    'Updated <code>GET</code>/<code>POST</code> behaviour is covered by automated tests.',
+    'Existing BUs are backfilled with a <code>sync_mode</code> reflecting their current setting.'],
+  epicAC:[
+    {id:1,text:'Save &amp; retrieve the UserSync mode (Enabled/Disabled/Delegated) via POST/GET',by:['INT-57550']},
+    {id:2,text:'Saving the Delegated config does not alter existing usersync_active behaviour',by:['INT-57550']},
+    {id:3,text:'Provide IEX stack information for a BU (single and multiple stacks)',by:['INT-57551']},
+    {id:4,text:'Return sync_mode everywhere usersync_active is currently used',by:['INT-57550','INT-57552'],src:'comment'},
+    {id:5,text:'Refresh the wfm-config cache after a UserSync config change',by:[]},
+    {id:6,text:'Updated GET/POST behaviour is covered by automated tests',by:['INT-57550','INT-57551']},
+    {id:7,text:'Existing BUs are backfilled with a sync_mode value',by:['INT-57554']}
+  ],
+  attachments:[{name:'CoOp User Sync to IEX Synchronization Flow',file:'image-2026…130.png',date:'13 Jul 2026, 07:54 PM',kind:'flow'},
+    {name:'wfm-config status sequence',file:'image-2026…524.png',date:'10 Jul 2026, 04:55 PM',kind:'seq'}],
+  comments:[
+    {who:'PJ',tm:'July 14, 2026 at 1:17 PM (edited)',mentions:['MF','SM','AS'],html:'We have a few questions:<ol><li>Do we need to update the <code>POST</code> endpoint to include <code>sync_mode</code> for updating the synchronization mode?</li><li>Should we create a cache endpoint to refresh the <code>wfm-config</code> cache?</li><li>Should we return the <code>sync_mode</code> field everywhere else that <code>usersync_active</code> is used?</li></ol>'},
+    {who:'MF',tm:'July 14, 2026 at 5:54 PM',reply:'PJ',html:'<ol><li>Yes. I updated the Epic and the first story to account for this.</li><li>Up to you when we implement — if the endpoint is called often enough to warrant caching, add it; otherwise defer it.</li><li>Yes, return <code>sync_mode</code> alongside <code>usersync_active</code> everywhere it’s exposed.</li></ol>'}
+  ]};
+
+var ISSUES={
+'INT-57550':{key:'INT-57550',type:'story',summary:'WFM Config - Provide User Sync Mode for a BU',assignee:'MB',reporter:'MF',
+  status:'Ready for Dev',column:'ready',verdictState:'idle',state:'risk',sp:3,priority:'P1',labels:['wfm','checkout'],team:'Sinhagad',aiAgent:'Yes',components:'wfm-config',sprint:'Payments Sprint 14',created:'13 Jul 2026',updated:'just now',
+  desc:'As a <b>CoOp User Sync service</b>, I want to save and retrieve the configured user synchronization mode for a BU so that I can determine whether to use the existing sync process, skip user synchronization, or delegate processing to the new UserSync service.',
+  notes:['CoOp User Sync will use the configured sync mode to determine which synchronization path should be followed.',
+    'Update the existing <code>GET /api/v1/bu/{busno}/status</code> endpoint to return the configured User Sync mode, including support for the <b>Delegated</b> value.',
+    'Update the existing <code>POST /api/v1/bu/{busno}/status</code> endpoint to support saving the delegated User Sync configuration for the specified BU.',
+    'The delegated database value will be stored separately from the existing <code>usersync_active</code> value.',
+    'The existing <code>usersync_active</code> column and behaviour should remain unchanged and continue to function as they do today.',
+    'This story is limited to saving and exposing the configured sync mode. Changes to CoOp routing behaviour are covered separately.'],
+  ac:['Demonstrate that <code>POST /api/v1/bu/{busno}/status</code> can save the delegated User Sync configuration for the specified BU.',
+    'Demonstrate that <code>GET /api/v1/bu/{busno}/status</code> returns <b>Enabled</b> for a BU configured to use the existing CoOp User Sync process.',
+    'Demonstrate that <code>GET /api/v1/bu/{busno}/status</code> returns <b>Disabled</b> for a BU configured not to perform user synchronization.',
+    'Demonstrate that <code>GET /api/v1/bu/{busno}/status</code> returns <b>Delegated</b> for a BU configured to use the new UserSync process.',
+    'Demonstrate that saving the delegated User Sync configuration does not alter the existing <code>usersync_active</code> behaviour.',
+    'Demonstrate appropriate behaviour when the requested BU does not have a valid sync-mode configuration.',
+    'Demonstrate that the updated <code>GET</code> and <code>POST</code> endpoint behaviour is covered by automated tests.'],
+  addedAc:['Return <code>sync_mode</code> everywhere <code>usersync_active</code> is currently exposed.'],
+  comments:[{who:'MF',tm:'yesterday',addedAC:true,html:'Per the epic discussion — also return <code>sync_mode</code> everywhere <code>usersync_active</code> is currently used. Adding this as an acceptance criterion.'}],
+  subtasks:[{k:'INT-57550-A',t:'task',s:'Analysis: sync-mode states &amp; storage model',rev:'ok',by:'SME'},
+    {k:'INT-57550-Q',t:'task',s:'QA: PO-approved test cases — evidence attached',rev:'ok',by:''}],
+  dev:{branch:'feature/INT-57550-usersync-mode',commits:9,pr:'#4821',prstate:'appr'},
+  report:{headline:'The sync-mode work is complete — but the shared serializer change leaked out of scope.',coverage:{met:8,total:8},fix:'stop emitting <code>sync_mode</code> from the <code>/api/v1/bu/{busno}/agents</code> response',fixNum:4890,
+    why:'Coverage is 100%, yet this is Risk. There is no RIA sub-task, so the agent ran its own impact analysis on PR #4821 and found a regression outside this story’s acceptance criteria.',
+    criteria:[{t:'<code>POST /status</code> saves the delegated config',m:'yes',ev:'BuStatusController:88',k:'code'},
+      {t:'<code>GET /status</code> returns <b>Enabled</b>',m:'yes',ev:'SyncModeMapper:22',k:'code'},
+      {t:'<code>GET /status</code> returns <b>Disabled</b>',m:'yes',ev:'SyncModeMapper:31',k:'code'},
+      {t:'<code>GET /status</code> returns <b>Delegated</b>',m:'yes',ev:'SyncModeMapper:40',k:'code'},
+      {t:'Delegated save does not alter <code>usersync_active</code>',m:'yes',ev:'test_usersync_active_unchanged ✓',k:'test'},
+      {t:'Invalid / missing sync-mode config handled',m:'yes',ev:'BuStatusController:120',k:'code'},
+      {t:'Updated GET/POST covered by automated tests',m:'yes',ev:'QA · INT-57550-Q',k:'qa'},
+      {t:'<code>sync_mode</code> returned everywhere <code>usersync_active</code> is used',m:'yes',ev:'StatusSerializer:54',k:'code',src:'comment'}],
+    flags:[{kind:'risk',t:'The shared status-serializer change also alters the /api/v1/bu/{busno}/agents response (out of scope) — it now emits sync_mode, which downstream consumers of that endpoint do not expect.',src:'Agent impact analysis · from PR #4821 diff (no RIA task on the story)'}],
+    drift:[{t:'Unplanned change: added a cache-warmer call in the status path — not part of this story (see the cache-endpoint discussion in Activity).',src:'wfm-config/cache.ts'}],
+    audit:[['Context','Description, 7 AC + 1 added in comments, 2 sub-tasks'],['Code','PR #4821 · 9 commits · 12 files'],['Impact analysis','Auto-run from PR #4821 — no RIA sub-task found'],['Evidence','QA INT-57550-Q: cases + screenshots'],['Verdict','Risk — overrides 100% coverage']]}},
+
+'INT-57551':{key:'INT-57551',type:'story',summary:'WFM Config - Provide IEX Stack Information for a BU',assignee:'PJ',reporter:'MF',
+  status:'Validate',column:'validate',verdictState:'done',state:'review',sp:1,priority:'P2',labels:['wfm'],team:'Sinhagad',aiAgent:'Yes',components:'wfm-config',sprint:'Payments Sprint 14',created:'12 Jul 2026',updated:'3 hours ago',
+  desc:'Expose the IEX stack information configured for a BU through WFM Config so downstream services can resolve the correct destination(s).',
+  notes:['Return all configured IEX stacks for the BU.','Support BUs with a single stack and BUs with multiple stacks.'],
+  ac:['Demonstrate that WFM Config provides all configured IEX stack information for a given BU.',
+    'Demonstrate that multiple IEX stacks are returned when multiple destinations are configured.',
+    'Demonstrate appropriate behaviour when no IEX stacks are configured for the requested BU.',
+    'Each stack entry includes its stack id and region.',
+    'Updated endpoint behaviour is covered by automated tests.'],
+  addedAc:[],comments:[],
+  subtasks:[{k:'INT-57551-Q',t:'task',s:'QA: PO-approved test cases — evidence attached',rev:'ok',by:''}],
+  dev:{branch:'feature/INT-57551-iex-stack',commits:5,pr:'#4830',prstate:'open'},
+  report:{headline:'Met — but the no-stack case has no test.',coverage:{met:4,total:5},why:null,fix:'add an automated test for the no-stack case',fixNum:4891,
+    criteria:[{t:'Provides all configured IEX stacks for a BU',m:'yes',ev:'IexStackController:20',k:'code'},
+      {t:'Multiple stacks returned for multiple destinations',m:'yes',ev:'test_multi_stack ✓',k:'test'},
+      {t:'No-stack case handled',m:'part',ev:'no test found',k:'warn'},
+      {t:'Each stack includes id + region',m:'yes',ev:'IexStackDto:11',k:'code'},
+      {t:'Covered by automated tests',m:'yes',ev:'QA · INT-57551-Q',k:'qa'}],
+    flags:[],drift:[],audit:[['Context','Description, 5 AC, 1 sub-task'],['Impact analysis','Auto-run from PR #4830 — no issues found'],['Gap','No-stack case has no automated test'],['Verdict','Review']]}},
+
+'INT-57552':{key:'INT-57552',type:'story',summary:'WFM Config - Expose sync_mode in status responses',assignee:'MB',reporter:'MF',
+  status:'Done',column:'done',verdictState:'done',state:'clear',sp:2,priority:'P2',labels:['wfm'],team:'Sinhagad',aiAgent:'Yes',components:'wfm-config',sprint:'Payments Sprint 14',created:'11 Jul 2026',updated:'1 day ago',
+  desc:'Include the configured sync_mode field in the BU status responses that currently expose usersync_active.',notes:[],
+  ac:['Status responses include a <code>sync_mode</code> field alongside <code>usersync_active</code>.',
+    '<code>sync_mode</code> reflects the stored Enabled / Disabled / Delegated value.',
+    'Existing consumers of <code>usersync_active</code> are unaffected.',
+    'Behaviour is covered by automated tests.'],
+  addedAc:[],comments:[],
+  subtasks:[{k:'INT-57552-Q',t:'task',s:'QA: PO-approved test cases — evidence attached',rev:'ok',by:''}],
+  dev:{branch:'feature/INT-57552-expose-syncmode',commits:3,pr:'#4835',prstate:'appr'},
+  report:{headline:'All acceptance criteria met, each backed by evidence.',coverage:{met:4,total:4},why:null,
+    criteria:[{t:'Status responses include <code>sync_mode</code>',m:'yes',ev:'StatusSerializer:54',k:'code'},
+      {t:'Reflects stored Enabled/Disabled/Delegated',m:'yes',ev:'test_status_syncmode ✓',k:'test'},
+      {t:'<code>usersync_active</code> consumers unaffected',m:'yes',ev:'QA · INT-57552-Q',k:'qa'},
+      {t:'Covered by automated tests',m:'yes',ev:'test_status_syncmode ✓',k:'test'}],
+    flags:[],drift:[],audit:[['Context','Description, 4 AC, 1 sub-task'],['Impact analysis','Auto-run from PR #4835 — no issues found'],['Verdict','Clear']]}},
+
+'INT-57553':{key:'INT-57553',type:'story',summary:'WFM Config - UserSync mode change analytics',assignee:'PJ',reporter:'MF',
+  status:'Validate',column:'validate',verdictState:'done',state:'unverified',sp:2,priority:'P2',labels:['analytics'],team:'Sinhagad',aiAgent:'Yes',components:'wfm-config',sprint:'Payments Sprint 14',created:'12 Jul 2026',updated:'2 hours ago',
+  desc:'Emit analytics events when a BU’s UserSync mode is created or changed.',notes:[],
+  ac:['Emit an event on UserSync mode create / update.','Events include BU number and the new mode.','Events are captured for analytics.'],
+  addedAc:[],comments:[],
+  subtasks:[{k:'INT-57553-Q',t:'task',s:'QA: test cases approved — evidence NOT yet attached',rev:'wait',by:''}],
+  dev:{branch:'feature/INT-57553-syncmode-analytics',commits:2,pr:'#4840',prstate:'open'},
+  report:{headline:'Can’t confirm yet — QA evidence hasn’t been attached.',coverage:{met:2,total:3},why:null,
+    criteria:[{t:'Emit event on mode create/update',m:'yes',ev:'analytics.ts:20',k:'code'},
+      {t:'Events include BU number + new mode',m:'yes',ev:'analytics.ts:41',k:'code'},
+      {t:'Events captured for analytics',m:'part',ev:'QA in review',k:'warn'}],
+    flags:[{kind:'unv',t:'QA sub-task is still in review — evidence not attached, so behaviour can’t be confirmed.',src:'INT-57553-Q'}],
+    drift:[],audit:[['Context','Description, 3 AC, 1 sub-task'],['Impact analysis','Auto-run from PR #4840 — none found'],['Evidence','QA INT-57553-Q: pending'],['Verdict','Unverified — routed to a human']]}},
+
+'INT-57554':{key:'INT-57554',type:'story',summary:'WFM Config - Backfill sync_mode for existing BUs',assignee:'SM',reporter:'MF',
+  status:'Done',column:'done',verdictState:'done',state:'clear',sp:3,priority:'P2',labels:['wfm','migration'],team:'Sinhagad',aiAgent:'No',components:'wfm-config',sprint:'Payments Sprint 14',created:'10 Jul 2026',updated:'2 days ago',
+  desc:'Backfill a sync_mode value for existing BUs, derived from their current usersync_active setting, so every BU has a defined mode.',notes:[],
+  ac:['Existing BUs receive a <code>sync_mode</code> reflecting their current <code>usersync_active</code> value.',
+    'The migration is idempotent and safe to re-run.',
+    'Migration is covered by automated tests.'],
+  addedAc:[],comments:[],
+  subtasks:[{k:'INT-57554-Q',t:'task',s:'QA: migration verified on staging — evidence attached',rev:'ok',by:''}],
+  dev:{branch:'feature/INT-57554-backfill-syncmode',commits:4,pr:'#4845',prstate:'appr'},
+  report:{headline:'All acceptance criteria met — migration verified on staging.',coverage:{met:3,total:3},why:null,
+    criteria:[{t:'Existing BUs backfilled from <code>usersync_active</code>',m:'yes',ev:'V2026_07__backfill_sync_mode.sql',k:'code'},
+      {t:'Idempotent / re-runnable',m:'yes',ev:'test_backfill_idempotent ✓',k:'test'},
+      {t:'Covered by automated tests',m:'yes',ev:'QA · INT-57554-Q',k:'qa'}],
+    flags:[],drift:[],audit:[['Context','Description, 3 AC, 1 sub-task'],['Impact analysis','Auto-run from PR #4845 — no issues found'],['Verdict','Clear']]}},
+
+'INT-57555':{key:'INT-57555',type:'spike',summary:'Spike: UserSync delegation routing approach',assignee:'SM',reporter:'MF',
+  status:'Done',column:'done',verdictState:'done',state:'neutral',analysis:true,sp:2,priority:'P2',labels:['spike'],team:'Sinhagad',aiAgent:'No',components:'wfm-config',sprint:'Payments Sprint 13',created:'8 days ago',updated:'4 days ago',
+  desc:'Spike to compare delegation routing approaches for the new UserSync service. Output is a recommendation, not shippable code.',notes:[],ac:[],addedAc:[],comments:[],subtasks:[],dev:null,
+  report:{headline:'Analysis task complete — no acceptance criteria to verify.',coverage:null,why:null,criteria:[],flags:[],drift:[],
+    audit:[['Type','Spike / analysis'],['Output','Routing recommendation in the sub-task'],['Verdict','Counted as done, not delivery coverage']]}}
+};
+var SNAP=JSON.stringify(ISSUES);
+/* ---------- aggregation ---------- */
+function effState(k){return ISSUES[k].verdictState==='done'?ISSUES[k].state:'pending';}
+function epicAcStatus(ac){if(!ac.by.length)return 'gap';var st=ac.by.map(effState);
+  if(st.indexOf('risk')>=0)return 'risk';if(st.indexOf('pending')>=0||st.indexOf('unverified')>=0)return 'pending';if(st.indexOf('review')>=0)return 'review';return 'met';}
+var eacMeta={met:{loz:'clear',lab:'Met'},risk:{loz:'risk',lab:'At risk'},review:{loz:'review',lab:'Review'},pending:{loz:'idle',lab:'Pending'},gap:{loz:null,lab:''}};
+
+/* ---------- verdict panel ---------- */
+function coverageHTML(c){if(!c)return '';var p=Math.round(c.met/c.total*100);
+  return '<div class="cov"><span class="cl">Coverage</span><span class="bar"><span class="fill" style="width:'+p+'%"></span></span><span class="num">'+c.met+' / '+c.total+' criteria</span><span class="hint">a count</span></div>';}
+function storySteps(it){var pr=it.dev?it.dev.pr:'the PR';var hasRIA=it.subtasks.some(function(s){return /regression|\bria\b/i.test(s.s);});
+  return ['Reading the story, acceptance criteria &amp; comments','Relating changes in PR '+pr+' to each criterion','Checking QA evidence against approved test cases',
+    hasRIA?'Reading the regression analysis':('No regression analysis on the story — running impact analysis from '+pr+' diff'),'Composing the verdict'];}
+function runlogHTML(steps){return '<div class="run" id="runlog">'+steps.map(function(s,i){return '<div class="rl" data-i="'+i+'"><span class="spn"></span><span>'+s+'</span></div>';}).join('')+'</div>';}
+function vHead(right,when){return '<div class="vp-h"><span class="mk">'+vmark+' Verdict</span><span class="ap">app</span>'+(when?'<span class="when">'+when+'</span>':'')+'<span class="sp"></span>'+right+'</div>';}
+
+function reconsideredText(it){var s=it.state;
+  if(s==='clear')return 'Each criterion is still met and evidence-backed after re-reading with your note.';
+  if(s==='unverified')return 'The blocker is missing QA evidence, not the criteria themselves — attach the QA evidence and Verdict will re-evaluate.';
+  if(it.key==='INT-57550')return 'The change to <code>/api/v1/bu/{busno}/agents</code> is still outside this story’s scope, and its consumers don’t expect <code>sync_mode</code>. If exposing it there is intended, add it as an acceptance criterion (or revert it from this PR) and Verdict will re-evaluate.';
+  return 'The flagged discrepancy still holds against the current PR and sub-tasks. If the behaviour is intended, capture it as an acceptance criterion and Verdict will re-evaluate.';}
+function disputeSteps(it){var t=(it.ui&&it.ui.disputeText)||'';var short=t.length>52?t.slice(0,52)+'…':t;
+  return ['Re-reading the story, acceptance criteria &amp; comments','Weighing your point: “'+short+'”','Re-checking PR '+(it.dev?it.dev.pr:'')+' and sub-tasks against it','Deciding whether the verdict changes'];}
+function disputeForm(it){return '<div class="dfrm"><label class="dfl">Why do you think this verdict is incorrect?</label>'+
+  '<textarea id="disputeInput" class="dfin" rows="3" placeholder="e.g. that endpoint is deprecated · consumers already handle sync_mode · this is expected because…"></textarea>'+
+  '<div class="dfacts"><button class="gbtn pri" data-dispute-submit="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'+rerun+'</svg>Re-run with my input</button><button class="gbtn" data-dispute-cancel="1">Cancel</button></div>'+
+  '<div class="dfhint">Verdict re-reads the story, PR '+(it.dev?it.dev.pr:'')+' and sub-tasks, and weighs your point against the code.</div></div>';}
+function verdictPanel(it){
+  var mode=it.verdictState;
+  if(mode==='idle'){
+    return '<section class="vp"><div class="vp-top" style="background:#DFE1E6"></div>'+vHead(loz('idle'),'')+
+      '<div class="idle"><b>This issue hasn’t been validated yet.</b> Move it to <b>Validate</b> and Verdict checks the delivered work against its acceptance criteria.'+
+      '<ul><li>Read the acceptance criteria — including any added later in comments</li><li>Relate the linked pull request to each criterion, and check QA evidence</li><li>If there’s no analysis / RIA sub-task, run an impact analysis from the PR diff</li></ul></div></section>';
+  }
+  if(mode==='running'){
+    var steps=(it.ui&&it.ui.rerunning)?disputeSteps(it):storySteps(it);
+    var lbl=(it.ui&&it.ui.rerunning)?'Re-evaluating':'Analyzing';
+    return '<section class="vp"><div class="vp-top" style="background:var(--indigo)"></div>'+vHead('<span class="loz idle"><span class="dot"></span>'+lbl+'</span>','running…')+runlogHTML(steps)+'</section>';
+  }
+  var r=it.report,s=it.state,uv=s==='unverified'?'unv':s,vlab=s==='neutral'?'Analysis complete':labels[s];
+  var acHTML=r.criteria.map(function(c){var mk=c.m==='yes'?'yes':(c.m==='part'?'part':'no');var g=c.m==='yes'?glyph.check:(c.m==='part'?glyph.bang:glyph.minus);
+    var tag=c.src==='comment'?'<span class="tagc">added in comment</span>':'';var cc=c.k==='warn'?'chip warn':'chip ev';
+    return '<div class="ar"><span class="mk2 '+mk+'"><svg viewBox="0 0 24 24">'+g+'</svg></span><span class="tx">'+c.t+tag+'</span><span class="'+cc+'">'+c.ev+'</span></div>';}).join('');
+  var flagsHTML=r.flags.map(function(f){var col=f.kind==='risk'?'var(--risk)':(f.kind==='unv'?'var(--unv)':'var(--review)');var ic=f.kind==='unv'?glyph.quest:glyph.bang;
+    return '<div class="fr"><span class="fi"><svg viewBox="0 0 24 24" style="stroke:'+col+'">'+ic+'</svg></span><div><div>'+f.t+'</div><div class="src">'+f.src+'</div></div></div>';}).join('');
+  var driftHTML=r.drift.map(function(d){return '<div class="fr"><span class="fi"><svg viewBox="0 0 24 24" style="stroke:var(--review)"><path d="M12 5v14M5 12h14"/></svg></span><div><div>'+d.t+'</div><div class="src">'+d.src+'</div></div></div>';}).join('');
+  var auditHTML=r.audit.map(function(a){return '<div class="aln"><span class="k">'+a[0]+'</span><span>'+a[1]+'</span></div>';}).join('');
+  var ui=it.ui||{};
+  var chal=ui.reran?('<div class="sh">Reviewer challenge</div><div class="chal"><div class="cw">'+nameMap[it.assignee]+' disputed this verdict:</div><blockquote>“'+ui.disputeText+'”</blockquote><div class="cr"><b>Re-evaluated with your input — verdict unchanged ('+vlab+').</b> '+reconsideredText(it)+'</div></div>'):'';
+  var footer;
+  if(ui.disputing){footer=disputeForm(it);}
+  else{
+    var prIcon='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v12"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v1a5 5 0 0 1-5 5H9"/></svg>';
+    var hasCodeFix=(r.drift.length>0)||r.flags.some(function(f){return f.kind==='risk'||f.kind==='review';})||(s==='review'&&r.criteria.some(function(c){return c.m==='part';}));
+    var acceptBtn=ui.accepted?'<span class="gbtn ok"><svg viewBox="0 0 24 24">'+glyph.check+'</svg>Verdict accepted</span>':'<button class="gbtn pri" data-accept="1">Looks correct</button>';
+    var disputeBtn=ui.accepted?'':'<button class="gbtn" data-dispute="1">Correct this verdict</button>';
+    var prBtn=ui.prNum?('<span class="gbtn ok"><svg viewBox="0 0 24 24">'+glyph.check+'</svg>Fix PR '+ui.prNum+' opened</span>'):(hasCodeFix?('<button class="gbtn warn2" data-createpr="1">'+prIcon+'Create fix PR</button>'):(it.dev?'<button class="gbtn" data-openpr="1">Open PR '+it.dev.pr+'</button>':''));
+    footer='<div class="vf">'+acceptBtn+disputeBtn+prBtn+'</div>';
+  }
+  var notes='';
+  if(ui.accepted){notes+='<div class="vfnote ok"><svg viewBox="0 0 24 24">'+glyph.check+'</svg>'+(s==='clear'?('Approved — no changes needed. '+nameMap[it.assignee]+' notified.'):('Accepted — '+nameMap[it.assignee]+' notified to fix the flagged issue before re-validating.'))+'</div>';}
+  if(ui.prNum){notes+='<div class="vfnote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v12"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v1a5 5 0 0 1-5 5H9"/></svg>Opened <b>PR '+ui.prNum+'</b> — fix: '+(ui.prDesc||'address the flagged discrepancy')+'. Awaiting review.</div>';}
+  return '<section class="vp"><div class="vp-top" style="background:var(--'+uv+')"></div>'+vHead(loz(s),ui.reran?'re-evaluated just now':'validated just now')+
+    '<div class="ban"><span class="bg '+uv+'">'+badgeSvg(s)+'</span><div><div class="lb '+uv+'">'+vlab+'</div><h2>'+r.headline+'</h2></div></div>'+
+    (r.why?'<div class="why"><svg viewBox="0 0 24 24">'+warnTri+'</svg><span>'+r.why+'</span></div>':'')+
+    coverageHTML(r.coverage)+
+    (r.criteria.length?'<div class="acl"><div class="sh">Acceptance criteria &amp; evidence</div>'+acHTML+'</div>':'')+
+    (r.flags.length?'<div class="sh">Flagged outside the acceptance criteria</div><div class="fl">'+flagsHTML+'</div>':'')+
+    (r.drift.length?'<div class="sh">Scope changes</div><div class="fl">'+driftHTML+'</div>':'')+
+    chal+
+    '<details class="audit"><summary><span class="cv">▸</span> Audit trail — how this verdict was reached</summary><div class="abody">'+auditHTML+'</div></details>'+
+    notes+footer+'</section>';
+}
+/* ---------- shared view pieces ---------- */
+var SPARK='<path d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8z"/><path d="M18 14l.7 1.8 1.8.7-1.8.7L18 19l-.7-1.8L15.5 16.5l1.8-.7z"/>';
+function pageActions(views){return '<div class="pacts"><button><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>'+views+'</button><button><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.2"/><circle cx="18" cy="6" r="2.2"/><circle cx="18" cy="18" r="2.2"/><path d="M8 11l8-4M8 13l8 4"/></svg></button><button><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/></svg></button></div>';}
+function crumb(parts){var h='';for(var i=0;i<parts.length;i++){if(i)h+='<span class="sep">/</span>';var p=parts[i];var inner=(p.type?ito(p.type,14)+' ':'')+p.label;h+=p.attr?('<button '+p.attr+'>'+inner+'</button>'):('<span>'+inner+'</span>');}return '<div class="crumb">'+h+'</div>';}
+function detailsCard(c){
+  var labelsHTML=(c.labels&&c.labels.length)?c.labels.map(function(l){return '<span class="chipf">'+l+'</span>';}).join(' '):'<span class="muted">Add labels</span>';
+  var parent=c.parentClickable?('<button class="parent" data-epic="1">'+ito(c.parentType,14)+' '+c.parentKey+'</button>'):('<span class="parent" style="color:var(--sub);cursor:default">'+ito(c.parentType,14)+' '+c.parentKey+'</span>');
+  return '<div class="dcard"><div class="dhead"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>Details</div>'+
+    '<div class="dfield"><div class="dlab">Assignee</div><div class="dval">'+av(c.assignee,24)+nameMap[c.assignee]+'</div><a class="dlink">Assign to me</a></div>'+
+    '<div class="dfield"><div class="dlab">Reporter</div><div class="dval">'+av(c.reporter,24)+nameMap[c.reporter]+'</div></div>'+
+    '<div class="dfield"><div class="dlab">Labels</div><div class="dval">'+labelsHTML+'</div></div>'+
+    '<div class="dfield"><div class="dlab">Team Name</div><div class="dval"><span class="chipf">'+c.team+'</span></div></div>'+
+    '<div class="dfield"><div class="dlab">R&amp;D VP</div><div class="dval"><span class="chipf">WFM</span></div></div>'+
+    '<div class="dfield"><div class="dlab">Implemented by AI Agent</div><div class="dval"><span class="chipf">'+c.aiAgent+'</span></div></div>'+
+    '<div class="dfield"><div class="dlab">Components</div><div class="dval"><span class="chipf">'+c.components+'</span></div></div>'+
+    '<div class="dfield"><div class="dlab">Priority</div><div class="dval">'+prioHTML(c.priority)+'</div></div>'+
+    '<div class="dfield"><div class="dlab">Parent</div><div class="dval">'+parent+'</div></div></div>';
+}
+function sideCol(c){
+  return '<div class="strow">'+statusButton({status:c.status,column:c.column})+'<button class="bolt" title="Automation"><svg viewBox="0 0 24 24"><path d="M13 2 L4 14 h6 l-1 8 9-12 h-6 l1-8 z"/></svg></button></div>'+
+    '<button class="improve"><svg viewBox="0 0 24 24">'+SPARK+'</svg>Improve work item</button>'+detailsCard(c);
+}
+function keyDetails(it){
+  var notes=(it.notes&&it.notes.length)?'<div class="fh">Implementation Notes</div><ul class="bul">'+it.notes.map(function(n){return '<li>'+n+'</li>';}).join('')+'</ul>':'';
+  var acs='';
+  if(it.ac.length||(it.addedAc&&it.addedAc.length)){
+    acs='<div class="fh">Acceptance Criteria</div><ol class="acol">'+it.ac.map(function(a){return '<li>'+a+'</li>';}).join('')+
+      (it.addedAc||[]).map(function(a){return '<li>'+a+' <span class="tagc">from comment</span></li>';}).join('')+'</ol>';
+  }
+  return '<div class="kd"><div class="kdhead"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>Key details</div>'+
+    '<div class="tabs"><span class="tab on">Description</span><span class="tab">Release Planning</span><span class="tab">AI Metrics</span></div>'+
+    '<div class="fh first">Description</div><div class="bodytext"><p>'+it.desc+'</p></div>'+notes+acs+'</div>';
+}
+function attThumb(kind){
+  if(kind==='flow')return '<svg viewBox="0 0 190 110" width="190" height="110"><rect width="190" height="110" fill="#EEF4FB"/><rect x="14" y="18" width="46" height="24" rx="4" fill="#fff" stroke="#B7C6DF"/><rect x="14" y="66" width="46" height="24" rx="4" fill="#fff" stroke="#B7C6DF"/><rect x="130" y="42" width="46" height="24" rx="4" fill="#D9E6F7" stroke="#9CB6DC"/><rect x="74" y="30" width="40" height="48" rx="5" fill="#E4DBF6" stroke="#B7A6E4"/><path d="M60 30 H74 M60 78 H74 M114 54 H130" stroke="#7C93B5" fill="none" stroke-width="1.4"/></svg>';
+  return '<svg viewBox="0 0 190 110" width="190" height="110"><rect width="190" height="110" fill="#F3FBF6"/><line x1="40" y1="16" x2="40" y2="96" stroke="#C7D9CC" stroke-width="1.3"/><line x1="150" y1="16" x2="150" y2="96" stroke="#C7D9CC" stroke-width="1.3"/><rect x="30" y="22" width="20" height="10" rx="2" fill="#D7EEDD" stroke="#8FC7A0"/><rect x="140" y="22" width="20" height="10" rx="2" fill="#D7EEDD" stroke="#8FC7A0"/><path d="M50 40 H150 M50 58 H150 M50 76 H150" stroke="#9CC7A8" stroke-width="1.2" fill="none"/></svg>';
+}
+function attachmentsHTML(list){if(!list||!list.length)return '';
+  var cards=list.map(function(a){return '<div class="attc"><div class="thumb">'+attThumb(a.kind)+'</div><div class="meta"><div class="fn">'+a.file+'</div><div class="dt">'+a.date+'</div></div></div>';}).join('');
+  return '<div class="fh">Attachments <span class="cnt">'+list.length+'</span></div><div class="att">'+cards+'</div>';
+}
+/* ---------- activity ---------- */
+function commentBlock(c){
+  var ment=c.mentions?'<div style="margin-top:7px">'+c.mentions.map(function(m){return '<span class="ment">@'+nameMap[m]+'</span>';}).join('&nbsp; ')+'</div>':'';
+  var added=c.addedAC?'<div class="addedac"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Added an acceptance criterion</div>':'';
+  return '<div class="cmt">'+av(c.who,32)+'<div style="flex:1"><div><span class="nm">'+nameMap[c.who]+'</span><span class="tm">'+c.tm+'</span></div><div class="tx">'+c.html+'</div>'+ment+added+
+    '<div class="re"><button><svg viewBox="0 0 24 24"><path d="M7 10v10H4V10zM7 10l4-7a2 2 0 0 1 2 2v3h5a2 2 0 0 1 2 2.3l-1.3 6A2 2 0 0 1 20.7 20H7"/></svg>Like</button><button><svg viewBox="0 0 24 24"><path d="M9 17l-5-5 5-5"/><path d="M4 12h11a5 5 0 0 1 5 5v1"/></svg>Reply</button></div></div></div>';
+}
+function activity(it){
+  var bot=(it.verdictState==='done'&&!it.analysis)?'<div class="cmt"><span class="cav" style="background:var(--indigo);width:32px;height:32px;font-size:13px">V</span><div style="flex:1"><div><span class="nm">Verdict</span><span class="tm">just now</span></div><div class="tx">validated this issue — <b>'+labels[it.state]+'</b>.'+(it.report.coverage?(' '+it.report.coverage.met+'/'+it.report.coverage.total+' criteria met.'):'')+'</div></div></div>':'';
+  var cmts=(it.comments||[]).map(commentBlock).join('');
+  return '<div class="act"><div class="fh first">Activity</div>'+
+    '<div class="atabs"><span class="atab on">Comments</span><span class="atab more">More <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span></div>'+
+    '<div class="composer">'+av('SK',32)+'<div class="box"><div class="ph">Add a comment…</div><div class="qbtns"><span class="qb">Suggest a reply…</span><span class="qb">Status update…</span><span class="qb">Thanks…</span></div></div></div>'+
+    '<div class="protip">Pro tip: press <kbd>M</kbd> to comment</div>'+bot+cmts+
+    '<div class="cmt">'+av(it.reporter,32)+'<div style="flex:1"><div><span class="nm">'+nameMap[it.reporter]+'</span><span class="tm">'+it.created+'</span></div><div class="tx">created this issue</div></div></div></div>';
+}
+
+/* ---------- issue view ---------- */
+function issueView(key){
+  var it=ISSUES[key];
+  var head=crumb([{label:'Spaces',attr:'data-board="1"'},{label:'CX_Integrations',attr:'data-board="1"'},{type:'epic',label:EPIC.key,attr:'data-epic="1"'},{type:it.type,label:key}]);
+  var cfg={status:it.status,column:it.column,assignee:it.assignee,reporter:it.reporter,labels:it.labels,team:it.team,aiAgent:it.aiAgent,components:it.components,priority:it.priority,parentKey:EPIC.key,parentType:'epic',parentClickable:true};
+  return '<div class="phead">'+head+pageActions('1')+'</div>'+
+    '<div class="cols"><div class="mcol">'+
+      '<h1 class="ititle">'+it.summary+'</h1>'+
+      '<div class="itbar"><button class="sqbtn" title="Add"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><button class="sqbtn" title="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M4 12h2M18 12h2M12 4v2M12 18v2"/></svg></button></div>'+
+      verdictPanel(it)+keyDetails(it)+activity(it)+
+    '</div><div class="scol">'+sideCol(cfg)+'</div></div>';
+}
+/* ---------- epic view ---------- */
+var EPIC_STEPS=['Reading all '+CHILDREN.length+' child reports','Reading the epic description, criteria &amp; comments','Mapping delivered work to each epic criterion','Checking every epic criterion has a story delivering it','Composing the epic verdict'];
+function shortName(i){return (nameMap[i]||'').split(' ')[0];}
+function statusChip(it){var m={todo:['#DCDFE4','#42526E'],prog:['#E9F2FF','#0B3EAE'],done:['#DCFFF1','#216E4E']}[statusCat(it.column)];return '<span class="ptag" style="background:'+m[0]+';color:'+m[1]+'">'+it.status.toUpperCase()+'</span>';}
+function epicAgg(){
+  var delivery=CHILDREN.filter(function(k){return ISSUES[k].type==='story';});
+  var validated=CHILDREN.filter(function(k){return ISSUES[k].verdictState==='done';});
+  var pendingCount=CHILDREN.length-validated.length;
+  function cnt(s){return delivery.filter(function(k){return ISSUES[k].verdictState==='done'&&ISSUES[k].state===s;}).length;}
+  var clears=cnt('clear'),reviews=cnt('review'),risks=cnt('risk'),unvs=cnt('unverified');
+  var validatedDelivery=delivery.filter(function(k){return ISSUES[k].verdictState==='done';}).length;
+  var analysisDone=CHILDREN.filter(function(k){return ISSUES[k].type==='spike'&&ISSUES[k].verdictState==='done';}).length;
+  var hasGap=EPIC.epicAC.some(function(ac){return ac.by.length===0;});
+  var es=(risks>0||hasGap)?'risk':(pendingCount>0?'unverified':(reviews>0?'review':'clear'));
+  var parts=[];
+  if(risks>0)parts.push(risks===1?'one story is at risk':risks+' stories are at risk');
+  if(hasGap)parts.push('one epic criterion has no story delivering it');
+  if(pendingCount>0)parts.push(pendingCount+(pendingCount===1?' child is':' children are')+' still pending');
+  var headline=parts.length?parts.join(', '):'Every criterion is delivered and sound';headline=headline.charAt(0).toUpperCase()+headline.slice(1)+'.';
+  return {delivery:delivery.length,validated:validated.length,pendingCount:pendingCount,clears:clears,reviews:reviews,risks:risks,unvs:unvs,validatedDelivery:validatedDelivery,analysisDone:analysisDone,hasGap:hasGap,es:es,headline:headline};
+}
+function verdictEpicPanel(){
+  if(epicVS==='idle'){
+    return '<section class="vp"><div class="vp-top" style="background:#DFE1E6"></div>'+vHead(loz('idle'),'')+
+      '<div class="idle"><b>This epic hasn’t been rolled up yet.</b> Validate it and Verdict reads every child’s report, maps the delivered work to each epic criterion (including any added later in comments), and flags any criterion no story covers.'+
+      '<div style="margin-top:14px"><button class="go" data-epicrun="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'+arrowR+'</svg>Validate epic</button></div></div></section>';
+  }
+  if(epicVS==='running'){
+    return '<section class="vp"><div class="vp-top" style="background:var(--indigo)"></div>'+vHead('<span class="loz idle"><span class="dot"></span>Analyzing</span>','running…')+runlogHTML(EPIC_STEPS)+'</section>';
+  }
+  var a=epicAgg(),euv=a.es==='unverified'?'unv':a.es;
+  return '<section class="vp"><div class="vp-top" style="background:var(--'+euv+')"></div>'+vHead(loz(a.es),'epic rollup')+
+    '<div class="ban"><span class="bg '+euv+'">'+badgeSvg(a.es)+'</span><div><div class="lb '+euv+'">'+(a.es==='clear'?'Ready to close':'Not ready to close')+'</div><h2>'+a.headline+'</h2></div></div>'+
+    '<div class="vf"><button class="gbtn" data-epicrun="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'+rerun+'</svg>Re-run rollup</button></div></section>';
+}
+function rollupHTML(){
+  var a=epicAgg();
+  var gap=a.hasGap?'<div class="gap"><svg viewBox="0 0 24 24">'+warnTri+'</svg><div><h3>Planning gap — epic AC 5 has no story</h3><p>“Refresh the <code>wfm-config</code> cache after a UserSync config change” isn’t delivered by any child. Every story is closed against its own criteria — the gap is in how the epic was broken down (it surfaced in the cache-endpoint discussion). Add a work item before closing.</p></div></div>':'';
+  var eac=EPIC.epicAC.map(function(ac){var st=epicAcStatus(ac);var m=eacMeta[st];
+    var kids=ac.by.map(function(k){return '<span class="kc" data-open="'+k+'">'+k+'</span>';}).join('');
+    var tag=ac.src==='comment'?'<span class="tagc">added in comment</span>':'';
+    var right=st==='gap'?'<span class="gtag">No story delivering it</span>':(m.loz?loz(m.loz,m.lab):'');
+    return '<div class="er '+(st==='gap'?'g':'')+'"><span class="en">AC '+ac.id+'</span><span class="et">'+ac.text+tag+'</span><span class="kids">'+kids+'</span>'+right+'</div>';}).join('');
+  var pips=[a.clears>0?'<span class="pip clear">'+a.clears+' clear</span>':'',a.reviews>0?'<span class="pip review">'+a.reviews+' review</span>':'',a.risks>0?'<span class="pip risk">'+a.risks+' at risk</span>':'',a.unvs>0?'<span class="pip unverified">'+a.unvs+' unverified</span>':'',a.pendingCount>0?'<span class="pip pending">'+a.pendingCount+' not run</span>':''].join('');
+  return gap+'<div class="sec">Epic acceptance criteria</div><div class="eac">'+eac+'</div>'+
+    '<div class="sec">By work type</div><div class="stats">'+
+      '<div class="stat"><div class="sl">Delivery stories</div><div class="sv">'+a.validatedDelivery+' / '+a.delivery+'</div><div class="sd">validated · '+a.clears+' clear, '+a.reviews+' review, '+a.risks+' at risk</div></div>'+
+      '<div class="stat"><div class="sl">Analysis</div><div class="sv">'+a.analysisDone+' done</div><div class="sd">spike complete</div></div>'+
+      '<div class="stat"><div class="sl">QA sign-off</div><div class="sv">'+a.unvs+' pending</div><div class="sd">evidence not yet attached</div></div></div>'+
+    '<div class="den">'+CHILDREN.length+' children · <b>'+a.validated+' validated · '+a.pendingCount+' not run</b><span class="pips">'+pips+'</span></div>';
+}
+function childTable(){
+  var rows=CHILDREN.map(function(k){var it=ISSUES[k];
+    return '<div class="ctr" data-open="'+k+'"><span class="w">'+ito(it.type,16)+'<span class="wk">'+k+'</span><span class="ws">'+it.summary+'</span></span>'+
+      '<span>'+prioHTML(it.priority)+'</span><span class="spts">'+it.sp+'</span><span class="cst">'+av(it.assignee,20)+' '+shortName(it.assignee)+'</span><span>'+statusChip(it)+'</span></div>';}).join('');
+  return '<div class="sec">Child work items</div><div class="ctbl"><div class="ctopbar">'+CHILDREN.length+' items<span class="done0">0% Done</span></div>'+
+    '<div class="cth"><span>Work</span><span>Priority</span><span>Pts</span><span>Assignee</span><span>Status</span></div>'+rows+'</div>';
+}
+function epicView(){
+  var head=crumb([{label:'Spaces',attr:'data-board="1"'},{label:'CX_Integrations',attr:'data-board="1"'},{type:'capability',label:PARENT.key},{type:'epic',label:EPIC.key}]);
+  var cfg={status:epicStatus,column:colOf(epicStatus),assignee:EPIC.assignee,reporter:EPIC.reporter,labels:EPIC.labels,team:EPIC.team,aiAgent:EPIC.aiAgent,components:EPIC.components,priority:EPIC.priority,parentKey:PARENT.key,parentType:'capability',parentClickable:false};
+  return '<div class="phead">'+head+pageActions('3')+'</div>'+
+    '<div class="cols"><div class="mcol">'+
+      '<h1 class="ititle">'+EPIC.summary+'</h1>'+
+      '<div class="itbar"><button class="sqbtn" title="Add"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><button class="sqbtn" title="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M4 12h2M18 12h2M12 4v2M12 18v2"/></svg></button></div>'+
+      '<p class="goal">'+EPIC.goal+'</p>'+
+      verdictEpicPanel()+(epicVS==='done'?rollupHTML():'')+
+      keyDetails(EPIC)+attachmentsHTML(EPIC.attachments)+childTable()+activity(EPIC)+
+    '</div><div class="scol">'+sideCol(cfg)+'</div></div>';
+}
+/* ---------- board ---------- */
+function boardView(){
+  var validated=CHILDREN.filter(function(k){return ISSUES[k].verdictState==='done';}).length;
+  var cols=STATUSES.map(function(s){var label=s[0],key=s[1];
+    var items=CHILDREN.filter(function(k){return ISSUES[k].column===key;});
+    var cards=items.map(function(k){var it=ISSUES[k];var showV=it.verdictState==='done'&&it.state!=='neutral';var uv=it.state==='unverified'?'unv':it.state;
+      var vmini=showV?'<span class="vm2" style="background:var(--'+uv+'-t);color:var(--'+uv+'-i)">'+labels[it.state]+'</span>':'';
+      return '<div class="bcard '+(showV?it.state:'')+'" data-open="'+k+'"><div class="bs">'+it.summary+'</div><div class="bf"><span class="bk">'+ito(it.type,16)+' '+k+'</span>'+vmini+'<span class="bp">'+av(it.assignee,22)+'</span></div></div>';}).join('')||'<div class="emp">—</div>';
+    var vhdr=key==='validate'?'<span class="vm">'+vmark+'</span><span class="vt">Verdict runs here</span>':'';
+    return '<section class="bcol"><div class="bch"><span class="cn">'+label+'</span><span class="cc">'+items.length+'</span>'+vhdr+'</div>'+cards+'</section>';}).join('');
+  return '<div class="phead">'+crumb([{label:'Projects',attr:'data-board="1"'},{label:'CX_Integrations',attr:'data-board="1"'},{label:'HI Sinhagad Scrum Board'}])+'</div>'+
+    '<h1 class="ititle">Board</h1>'+
+    '<div class="den" style="margin-top:0">'+ito('epic',16)+' <b>'+EPIC.key+'</b> '+EPIC.summary+'<span class="pips" style="align-items:center">'+validated+'/'+CHILDREN.length+' validated <button class="gbtn" data-epic="1" style="margin-left:6px">Open epic rollup ›</button></span></div>'+
+    '<div class="board">'+cols+'</div>';
+}
+/* ---------- state + wiring ---------- */
+var view='issue', selected='INT-57550', menuOpen=false, epicVS='idle', epicStatus='Ready for Dev';
+function animateLog(cb){var reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;var log=document.getElementById('runlog');if(reduce||!log){cb();return;}
+  var rows=[].slice.call(log.querySelectorAll('.rl'));var i=0;(function next(){if(i>0)rows[i-1].classList.add('dn');if(i<rows.length){rows[i].classList.add('in');i++;setTimeout(next,520);}else{setTimeout(cb,360);}})();}
+function runValidate(){animateLog(function(){ISSUES['INT-57550'].verdictState='done';render();});}
+function runEpic(){epicStatus='Validate';epicVS='running';render();animateLog(function(){epicVS='done';render();});}
+function reset(){var fresh=JSON.parse(SNAP);Object.keys(fresh).forEach(function(k){ISSUES[k]=fresh[k];});view='issue';selected='INT-57550';menuOpen=false;epicVS='idle';epicStatus='Ready for Dev';render();}
+function showToast(msg){var t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},2600);}
+function uiOf(k){var it=ISSUES[k];it.ui=it.ui||{};return it.ui;}
+function accept(k){var it=ISSUES[k],ui=uiOf(k);ui.accepted=true;ui.disputing=false;
+  it.comments=(it.comments||[]).concat([{who:'SK',tm:'just now',mentions:[it.assignee],html:(it.state==='clear'?'Approved this verdict — looks good.':'Accepted this verdict. @'+nameMap[it.assignee]+' please fix the flagged issue before re-validating.')}]);
+  showToast(it.state==='clear'?('Approved · '+nameMap[it.assignee]+' notified'):(nameMap[it.assignee]+' notified to fix the flagged issue'));render();}
+function openDispute(k){uiOf(k).disputing=true;render();}
+function cancelDispute(k){uiOf(k).disputing=false;render();}
+function submitDispute(k){var el=document.getElementById('disputeInput');var val=el?el.value.trim():'';if(!val){if(el){el.focus();el.style.borderColor='var(--risk)';}return;}var it=ISSUES[k],ui=uiOf(k);ui.disputing=false;ui.disputeText=val;ui.rerunning=true;ui.reran=false;it.verdictState='running';render();runDispute(k);}
+function runDispute(k){animateLog(function(){var it=ISSUES[k],ui=uiOf(k);it.verdictState='done';ui.rerunning=false;ui.reran=true;showToast('Re-evaluated with your input');render();});}
+function createPR(k){var it=ISSUES[k],ui=uiOf(k);ui.prNum=(it.report&&it.report.fixNum)||4899;ui.prDesc=(it.report&&it.report.fix)||'address the flagged discrepancy';
+  it.comments=(it.comments||[]).concat([{who:'SK',tm:'just now',html:'Opened <b>PR '+ui.prNum+'</b> to '+ui.prDesc+'.'}]);
+  showToast('Opened fix PR '+ui.prNum);render();}
+function render(){
+  var el=document.getElementById('view');
+  el.innerHTML=view==='board'?boardView():(view==='epic'?epicView():issueView(selected));
+  el.parentElement.scrollTop=0;
+  document.getElementById('nav-board').classList.toggle('on',view==='board');
+  document.getElementById('nav-epic').classList.toggle('on',view==='epic');
+  [].slice.call(el.querySelectorAll('[data-open]')).forEach(function(x){x.onclick=function(e){e.stopPropagation();selected=x.getAttribute('data-open');view='issue';menuOpen=false;render();};});
+  [].slice.call(el.querySelectorAll('[data-epic]')).forEach(function(x){x.onclick=function(e){e.stopPropagation();view='epic';menuOpen=false;render();};});
+  [].slice.call(el.querySelectorAll('[data-board]')).forEach(function(x){x.onclick=function(e){e.stopPropagation();view='board';menuOpen=false;render();};});
+  [].slice.call(el.querySelectorAll('[data-epicrun]')).forEach(function(x){x.onclick=function(e){e.stopPropagation();runEpic();};});
+  [].slice.call(el.querySelectorAll('[data-accept]')).forEach(function(x){x.onclick=function(e){e.stopPropagation();accept(selected);};});
+  [].slice.call(el.querySelectorAll('[data-dispute]')).forEach(function(x){x.onclick=function(e){e.stopPropagation();openDispute(selected);};});
+  [].slice.call(el.querySelectorAll('[data-dispute-cancel]')).forEach(function(x){x.onclick=function(e){e.stopPropagation();cancelDispute(selected);};});
+  [].slice.call(el.querySelectorAll('[data-dispute-submit]')).forEach(function(x){x.onclick=function(e){e.stopPropagation();submitDispute(selected);};});
+  [].slice.call(el.querySelectorAll('[data-createpr]')).forEach(function(x){x.onclick=function(e){e.stopPropagation();createPR(selected);};});
+  [].slice.call(el.querySelectorAll('[data-openpr]')).forEach(function(x){x.onclick=function(e){e.stopPropagation();showToast('Opening PR '+((ISSUES[selected].dev||{}).pr||''));};});
+  var sb=document.getElementById('statusbtn');
+  if(sb){
+    sb.onclick=function(e){e.stopPropagation();menuOpen=!menuOpen;render();};
+    [].slice.call(el.querySelectorAll('#statusmenu [data-status]')).forEach(function(b){b.onclick=function(e){e.stopPropagation();var target=b.getAttribute('data-status');menuOpen=false;
+      if(view==='epic'){epicStatus=target;if(target==='Validate'){runEpic();}else{render();}return;}
+      var it=ISSUES[selected];it.status=target;it.column=colOf(target);
+      if(selected==='INT-57550'&&target==='Validate'&&it.verdictState!=='done'){it.verdictState='running';render();runValidate();}else{render();}
+    };});
+    if(menuOpen){var m=document.getElementById('statusmenu');if(m)m.classList.remove('hidden');}
+  }
+}
+document.addEventListener('click',function(){if(menuOpen){menuOpen=false;render();}});
+document.getElementById('nav-board').onclick=function(){view='board';menuOpen=false;render();};
+document.getElementById('nav-epic').onclick=function(){view='epic';menuOpen=false;render();};
+document.getElementById('btn-reset').onclick=reset;
+render();
+</script>
+</body>
+</html>
