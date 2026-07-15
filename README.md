@@ -3,7 +3,7 @@
 
 > **▶ Try the live prototype:** **[REPLACE-WITH-YOUR-GITHUB-PAGES-URL]**
 > Opens in any browser — no login, no setup. Best viewed on desktop. Takes about 3 minutes.
-> *(After you enable GitHub Pages, paste your `https://suhas-kakde.github.io/verdict-prototype/` link above.)*
+> *(After you enable GitHub Pages, paste your https://suhas-kakde.github.io/verdict-prototype/ link above.)*
 
 ---
 
